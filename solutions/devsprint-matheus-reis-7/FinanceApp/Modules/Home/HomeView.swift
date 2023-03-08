@@ -13,9 +13,21 @@ protocol HomeViewDelegate: AnyObject {
     func didSelectActivity()
 }
 
+struct HomeViewState {
+    let homeHeaderViewState: HomeHeaderViewState?
+    let activityCellViewState: [ActivityCellViewState]
+}
+
 class HomeView: UIView {
 
     weak var delegate: HomeViewDelegate?
+    
+    var homeViewState: HomeViewState? {
+        didSet {
+            homeHeaderView.homeHeaderViewState = homeViewState?.homeHeaderViewState
+            activityListView.activities = homeViewState?.activityCellViewState ?? []
+        }
+    }
 
     let stackView: UIStackView = {
         let stackView = UIStackView()
@@ -47,7 +59,7 @@ class HomeView: UIView {
         stackView.setCustomSpacing(32, after: homeHeaderView)
         addSubview(stackView)
 
-        let estimatedHeight = CGFloat(activityListView.tableView.numberOfRows(inSection: 0))*ActivityListView.cellSize
+        let estimatedHeight = 5*ActivityListView.cellSize
 
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),

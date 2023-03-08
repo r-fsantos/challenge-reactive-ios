@@ -18,33 +18,26 @@ class HomeViewController: UIViewController {
         homeView.delegate = self
         return homeView
     }()
+    
+    private var formatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        return formatter
+    }()
 
     override func viewDidLoad() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Profile", style: .plain, target: self, action: #selector(openProfile))
         
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        
         financeService.fetchHomeData()
             .receive(on: DispatchQueue.main)
             .replaceError(with: nil)
-            .compactMap {
-                guard let balanceAmount = formatter.string(for: $0?.balance), let savingsAmount = formatter.string(for: $0?.savings), let spendingAmount = formatter.string(for: $0?.spending) else { return nil }
-                return HomeHeaderViewState(balanceAmount: balanceAmount, savingsAmount: savingsAmount, spendingAmount: spendingAmount)
+            .compactMap { [weak self] homeData in
+                return HomeViewState(
+                    homeHeaderViewState: self?.mapHomeDataToHeaderViewState(homeData),
+                    activityCellViewState: self?.mapHomeDataToActivities(homeData) ?? []
+                )
             }
-            .assign(to: \.homeHeaderViewState, on: homeView.homeHeaderView)
-            .store(in: &cancellables)
-        
-        financeService.fetchHomeData()
-            .receive(on: DispatchQueue.main)
-            .replaceError(with: nil)
-            .compactMap {
-                $0?.activity.compactMap {
-                    guard let price = formatter.string(for: $0.price) else { return nil }
-                    return ActivityCellViewState(name: $0.name, details: "\(price) • \($0.time)")
-                }
-            }
-            .assign(to: \.activities, on: homeView.activityListView)
+            .assign(to: \.homeViewState, on: homeView)
             .store(in: &cancellables)
     }
 
@@ -56,6 +49,30 @@ class HomeViewController: UIViewController {
     func openProfile() {
         let navigationController = UINavigationController(rootViewController: UserProfileViewController())
         self.present(navigationController, animated: true)
+    }
+    
+    private func mapHomeDataToHeaderViewState(_ homeData: HomeData?) -> HomeHeaderViewState? {
+        guard
+            let balanceAmount = formatter.string(for: homeData?.balance),
+            let savingsAmount = formatter.string(for: homeData?.savings),
+            let spendingAmount = formatter.string(for: homeData?.spending)
+        else { return nil }
+        let homeHeaderViewState = HomeHeaderViewState(
+            balanceAmount: balanceAmount,
+            savingsAmount: savingsAmount,
+            spendingAmount: spendingAmount
+        )
+        return homeHeaderViewState
+    }
+    
+    private func mapHomeDataToActivities(_ homeData: HomeData?) -> [ActivityCellViewState]? {
+        return homeData?.activity.compactMap {
+            guard let price = formatter.string(for: $0.price) else { return nil }
+            return ActivityCellViewState(
+                name: $0.name,
+                details: "\(price) • \($0.time)"
+            )
+        }
     }
 }
 
