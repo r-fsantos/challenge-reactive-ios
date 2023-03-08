@@ -7,7 +7,19 @@
 
 import UIKit
 
+struct ActivityCellViewState {
+    let name: String
+    let details: String
+}
+
 class ActivityCellView: UITableViewCell {
+    
+    var activity: ActivityCellViewState? {
+        didSet {
+            activityNameLabel.text = activity?.name
+            activityInfoLabel.text = activity?.details
+        }
+    }
 
    private var mainStackView: UIStackView = {
        let stack = UIStackView(frame: .zero)

@@ -19,6 +19,12 @@ class ActivityListView: UIView {
     static let cellSize = CGFloat(82)
 
     private let cellIdentifier = "ActivityCellIdentifier"
+    
+    var activities = [ActivityCellViewState]() {
+        didSet {
+            tableView.reloadData()
+        }
+    }
 
     lazy var tableView: UITableView = {
 
@@ -67,14 +73,12 @@ extension ActivityListView {
 extension ActivityListView: UITableViewDataSource {
 
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-
-        return 5
+        return activities.count
     }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! ActivityCellView
-
+        cell.activity = activities[indexPath.row]
         return cell
     }
 }
@@ -87,7 +91,6 @@ extension ActivityListView: UITableViewDelegate {
 
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
         delegate?.didSelectedActivity()
     }
 }

@@ -8,10 +8,23 @@
 import Foundation
 import UIKit
 
+struct HomeHeaderViewState {
+    let balanceAmount: String
+    let savingsAmount: String
+    let spendingAmount: String
+}
+
 class HomeHeaderView: UIView {
+    
+    var homeHeaderViewState: HomeHeaderViewState? {
+        didSet {
+            label.text = homeHeaderViewState?.balanceAmount
+            savingsValueLabel.text = homeHeaderViewState?.savingsAmount
+            spendingValueLabel.text = homeHeaderViewState?.spendingAmount
+        }
+    }
 
     let stackView: UIStackView = {
-
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -22,15 +35,12 @@ class HomeHeaderView: UIView {
     }()
 
     let label: UILabel = {
-
         let label = UILabel()
-        label.text = "$15,459.27"
         label.font = UIFont.boldSystemFont(ofSize: 34)
         return label
     }()
 
     let savingsStackView: UIStackView = {
-
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
@@ -39,7 +49,6 @@ class HomeHeaderView: UIView {
     }()
 
     let savingsLabel: UILabel = {
-
         let label = UILabel()
         label.text = "Savings"
         label.font = UIFont.boldSystemFont(ofSize: 17)
@@ -47,15 +56,12 @@ class HomeHeaderView: UIView {
     }()
 
     let savingsValueLabel: UILabel = {
-
         let label = UILabel()
-        label.text = "$100.00"
         label.textColor = .lightGray
         return label
     }()
 
     let spendingStackView: UIStackView = {
-
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
@@ -64,7 +70,6 @@ class HomeHeaderView: UIView {
     }()
 
     let spendingLabel: UILabel = {
-
         let label = UILabel()
         label.text = "Spending"
         label.font = UIFont.boldSystemFont(ofSize: 17)
@@ -72,9 +77,7 @@ class HomeHeaderView: UIView {
     }()
 
     let spendingValueLabel: UILabel = {
-
         let label = UILabel()
-        label.text = "$100.00"
         label.textColor = .lightGray
         return label
     }()
