@@ -28,10 +28,9 @@ class HomeViewController: UIViewController {
     private let balanceObservable = BehaviorRelay<Double>(value: 0)
 
     private func bindObservables() {
-        balanceObservable.subscribe(onNext: { balance in
-            print("balanceObservable onNext: \(balance)")
-            self.homeView.homeHeaderView.label.text = String(format: "$%.3f", balance)
-        }).disposed(by: disposeBag)
+        balanceObservable.map { String(format: "$%.2f", $0) }
+            .bind(to: homeView.homeHeaderView.label.rx.text)
+            .disposed(by: disposeBag)
 
         homeView.homeHeaderView.incrementButton.rx
             .tap.bind(onNext: {
@@ -57,7 +56,7 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Profile", style: .plain, target: self, action: #selector(openProfile))
         bindObservables()
-        balanceObservable.accept(42.453)
+        balanceObservable.accept(42.00)
     }
 
     override func loadView() {
