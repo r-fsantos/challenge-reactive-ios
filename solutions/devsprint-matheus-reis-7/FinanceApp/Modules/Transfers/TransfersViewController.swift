@@ -29,6 +29,9 @@ final class TransfersViewController: UIViewController {
 
     override func viewDidLoad() {
         bindObservables()
+
+        // testing bibinding (transferView.amountTextField.text <-> transferAmountObservable)
+        transferAmountObservable.accept("123456789")
     }
 
     private func bindObservables() {
@@ -37,6 +40,11 @@ final class TransfersViewController: UIViewController {
         transferView.amountTextField.rx
             .text.orEmpty
             .bind(to: transferAmountObservable)
+            .disposed(by: disposeBag)
+
+        // bibinding (transferView.amountTextField.text <-> transferAmountObservable)
+        transferAmountObservable
+            .bind(to: transferView.amountTextField.rx.text)
             .disposed(by: disposeBag)
 
         // 4 subscribe para validar a ideia contida em 3
