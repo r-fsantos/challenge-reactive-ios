@@ -34,16 +34,16 @@ class HomeViewController: UIViewController {
 
         homeView.homeHeaderView.incrementButton.rx
             .tap.bind(onNext: {
-                let actualValue = self.balanceObservable.value
-                let newValue = actualValue + 0.25
-                self.balanceObservable.accept(newValue)
+                let actualBalance = self.balanceObservable.value
+                let newBalance = actualBalance + 0.25
+                self.balanceObservable.accept(newBalance)
             }).disposed(by: disposeBag)
 
         homeView.homeHeaderView.decrementButton.rx
             .tap.bind(onNext: {
-                let actualValue = self.balanceObservable.value
-                let newValue = actualValue - 0.25
-                self.balanceObservable.accept(newValue)
+                let actualBalance = self.balanceObservable.value
+                let newBalance = actualBalance - 0.25
+                self.balanceObservable.accept(newBalance)
             }).disposed(by: disposeBag)
     }
 
