@@ -18,7 +18,10 @@ final class TransfersViewController: UIViewController {
     }()
 
     // 3 - Bind de emissão do valor a ser transferido a um behaviorRelay
-    let transferAmountObservable = BehaviorRelay<String>(value: "")
+    private let transferAmountObservable = BehaviorRelay<String>(value: "")
+
+    // 5 saldo > valorASerTransferido ? success : erro (falta saldo)
+    private let balance: Double = 150.0
 
     override func loadView() {
         self.view = transferView
@@ -41,6 +44,13 @@ final class TransfersViewController: UIViewController {
         //        transferAmountObservable.subscribe(onNext: {
         //            print("valor a ser transferido: \($0)")
         //        }).disposed(by: disposeBag)
+
+        // 5 saldo > valorASerTransferido ? success : erro (falta saldo)
+        transferAmountObservable.map { Double($0) ?? 0.0 }
+        .subscribe(onNext: { amount in
+            self.transferView.amountTextField.textColor = amount > self.balance ? UIColor.red : UIColor.green
+        }).disposed(by: disposeBag)
+
 
         // 1 - Reagir ao clique em Choose contact: mostrar os contatos?
         transferView.chooseContactButton.rx
