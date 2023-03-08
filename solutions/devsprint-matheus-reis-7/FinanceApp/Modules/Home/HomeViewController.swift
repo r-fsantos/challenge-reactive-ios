@@ -54,7 +54,10 @@ class HomeViewController: UIViewController {
     }()
 
     override func viewDidLoad() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Profile", style: .plain, target: self, action: #selector(openProfile))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Profile",
+                                                            style: .plain,
+                                                            target: self,
+                                                            action: #selector(openProfile))
         bindObservables()
         balanceObservable.accept(42.00)
     }
