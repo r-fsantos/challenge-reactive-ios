@@ -39,8 +39,8 @@ class HomeViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .replaceError(with: nil)
             .compactMap {
-                $0?.activity.map {
-                    let price = formatter.string(for: $0.price)
+                $0?.activity.compactMap {
+                    guard let price = formatter.string(for: $0.price) else { return nil }
                     return ActivityCellViewState(name: $0.name, details: "\(price) • \($0.time)")
                 }
             }

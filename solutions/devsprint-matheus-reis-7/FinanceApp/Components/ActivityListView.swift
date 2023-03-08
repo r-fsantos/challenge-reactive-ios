@@ -27,7 +27,6 @@ class ActivityListView: UIView {
     }
 
     lazy var tableView: UITableView = {
-
         let tableView = UITableView(frame: .zero)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(ActivityCellView.self, forCellReuseIdentifier: self.cellIdentifier)
@@ -38,12 +37,9 @@ class ActivityListView: UIView {
 
     init() {
         super.init(frame: .zero)
-
         backgroundColor = .white
         addSubviews()
         configureConstraints()
-
-        tableView.reloadData()
     }
 
     required init?(coder: NSCoder) {
@@ -54,14 +50,11 @@ class ActivityListView: UIView {
 extension ActivityListView {
 
     func addSubviews() {
-
         addSubview(tableView)
     }
 
     func configureConstraints() {
-
         NSLayoutConstraint.activate([
-
             tableView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
