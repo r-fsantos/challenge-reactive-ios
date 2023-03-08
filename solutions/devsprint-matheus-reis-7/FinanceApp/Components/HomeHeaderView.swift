@@ -11,7 +11,6 @@ import UIKit
 class HomeHeaderView: UIView {
 
     let stackView: UIStackView = {
-
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -22,7 +21,6 @@ class HomeHeaderView: UIView {
     }()
 
     let label: UILabel = {
-
         let label = UILabel()
         label.text = "$15,459.27"
         label.font = UIFont.boldSystemFont(ofSize: 34)
@@ -30,7 +28,6 @@ class HomeHeaderView: UIView {
     }()
 
     let savingsStackView: UIStackView = {
-
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
@@ -39,7 +36,6 @@ class HomeHeaderView: UIView {
     }()
 
     let savingsLabel: UILabel = {
-
         let label = UILabel()
         label.text = "Savings"
         label.font = UIFont.boldSystemFont(ofSize: 17)
@@ -47,7 +43,6 @@ class HomeHeaderView: UIView {
     }()
 
     let savingsValueLabel: UILabel = {
-
         let label = UILabel()
         label.text = "$100.00"
         label.textColor = .lightGray
@@ -55,7 +50,6 @@ class HomeHeaderView: UIView {
     }()
 
     let spendingStackView: UIStackView = {
-
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
@@ -64,7 +58,6 @@ class HomeHeaderView: UIView {
     }()
 
     let spendingLabel: UILabel = {
-
         let label = UILabel()
         label.text = "Spending"
         label.font = UIFont.boldSystemFont(ofSize: 17)
@@ -72,11 +65,35 @@ class HomeHeaderView: UIView {
     }()
 
     let spendingValueLabel: UILabel = {
-
         let label = UILabel()
         label.text = "$100.00"
         label.textColor = .lightGray
         return label
+    }()
+
+    // increment / decrement balance properties
+    private let buttonStackView: UIStackView = {
+        let buttonStackView = UIStackView()
+        buttonStackView.translatesAutoresizingMaskIntoConstraints = false
+        buttonStackView.axis = .horizontal
+        buttonStackView.distribution = .equalCentering
+        return buttonStackView
+    }()
+
+    let incrementButton: UIButton = {
+        let incrementButton = UIButton(type: .custom)
+        incrementButton.setImage(.init(systemName: "plus"), for: .normal)
+        incrementButton.backgroundColor = .green
+        incrementButton.translatesAutoresizingMaskIntoConstraints = false
+        return incrementButton
+    }()
+
+    let decrementButton: UIButton = {
+        let decrementButton = UIButton(type: .custom)
+        decrementButton.setImage(.init(systemName: "minus"), for: .normal)
+        decrementButton.backgroundColor = .red
+        decrementButton.translatesAutoresizingMaskIntoConstraints = false
+        return decrementButton
     }()
 
     init() {
@@ -90,9 +107,14 @@ class HomeHeaderView: UIView {
         spendingStackView.addArrangedSubview(spendingLabel)
         spendingStackView.addArrangedSubview(spendingValueLabel)
 
+        buttonStackView.addArrangedSubview(decrementButton)
+        buttonStackView.addArrangedSubview(incrementButton)
+
         stackView.addArrangedSubview(label)
+        stackView.addArrangedSubview(buttonStackView)
         stackView.addArrangedSubview(savingsStackView)
         stackView.addArrangedSubview(spendingStackView)
+
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
@@ -100,7 +122,6 @@ class HomeHeaderView: UIView {
             stackView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
-
         ])
     }
 

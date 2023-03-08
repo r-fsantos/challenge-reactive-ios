@@ -7,6 +7,7 @@
 
 import UIKit
 import RxSwift
+import RxCocoa
 
 // O saldo é exibido. Proposta: exibir o saldo com abordagem reativa
 // é preciso guardar o saldo (BehaviorRelay)?
@@ -14,19 +15,37 @@ import RxSwift
 class HomeViewController: UIViewController {
 
     // MARK: - Reactive properties
-    /// A viewController é responsável pela exibição e controlar fluxos de dados.
-    /// Portanto observables são criados aqui. Então, como boa prática, é necessária
-    /// uma instância de DisposeBag. Assim, ao fim do ciclo de vida dos observables, juntamente
-    /// a viewController, a disposeBag será responsável por efetuar a liberação da memória alocada.
+    /// `A viewController é responsável pela exibição e controlar fluxos de dados.
+    /// `Portanto observables são criados aqui. Então, como boa prática, é necessária
+    /// `uma instância de DisposeBag. Assim, ao fim do ciclo de vida dos observables, juntamente
+    /// `a viewController, a disposeBag será responsável por efetuar a liberação da memória alocada.
     private let disposeBag = DisposeBag()
 
-    private let balanceObservable = PublishSubject<Double>()
+    // MARK: - Escolha por BehaviorRelay`
+    /// `É necessário que o observable detenha o valor do último evento emitido,
+    /// `É necessário acessar esse valor em tempo de execução e o seu acesso
+    /// `Não pode levantar nenhuma exceção/erro, pois será utilizado para atualizar UI`
+    private let balanceObservable = BehaviorRelay<Double>(value: 0)
 
     private func bindObservables() {
         balanceObservable.subscribe(onNext: { balance in
             print("balanceObservable onNext: \(balance)")
             self.homeView.homeHeaderView.label.text = String(format: "$%.3f", balance)
         }).disposed(by: disposeBag)
+
+        homeView.homeHeaderView.incrementButton.rx
+            .tap.bind(onNext: {
+                let actualValue = self.balanceObservable.value
+                let newValue = actualValue + 0.25
+                self.balanceObservable.accept(newValue)
+            }).disposed(by: disposeBag)
+
+        homeView.homeHeaderView.decrementButton.rx
+            .tap.bind(onNext: {
+                let actualValue = self.balanceObservable.value
+                let newValue = actualValue - 0.25
+                self.balanceObservable.accept(newValue)
+            }).disposed(by: disposeBag)
     }
 
     lazy var homeView: HomeView = {
@@ -38,7 +57,7 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Profile", style: .plain, target: self, action: #selector(openProfile))
         bindObservables()
-        balanceObservable.onNext(42.543)
+        balanceObservable.accept(42.453)
     }
 
     override func loadView() {
