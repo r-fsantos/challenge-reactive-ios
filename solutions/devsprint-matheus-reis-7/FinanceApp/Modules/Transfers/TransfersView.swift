@@ -8,28 +8,17 @@
 import Foundation
 import UIKit
 
-protocol TransferViewDelegate: AnyObject {
-
-    func didPressChooseContactButton()
-    func didPressTransferButton(with amount: String)
-}
-
-class TransfersView: UIView {
-
-    weak var delegate: TransferViewDelegate?
+final class TransfersView: UIView {
 
     let stackView: UIStackView = {
-
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = 8
-
         return stackView
     }()
 
     let amountTextField: UITextField = {
-
         let textField = UITextField()
         textField.placeholder = "$0"
         textField.font = UIFont.boldSystemFont(ofSize: 34)
@@ -39,30 +28,27 @@ class TransfersView: UIView {
     }()
 
     lazy var chooseContactButton: UIButton = {
-
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Choose contact", for: .normal)
         button.setTitleColor(.systemBlue, for: .normal)
-        button.addTarget(self, action: #selector(chooseContact), for: .touchUpInside)
         return button
     }()
 
     lazy var transferButton: UIButton = {
-
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Transfer", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .systemBlue
         button.layer.cornerRadius = 14
-        button.addTarget(self, action: #selector(transfer), for: .touchUpInside)
         return button
     }()
 
     init() {
         super.init(frame: .zero)
 
+        // TODO: Implement ViewCodableProtocol
         backgroundColor = .white
 
         stackView.addArrangedSubview(amountTextField)
@@ -80,18 +66,6 @@ class TransfersView: UIView {
             transferButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16),
             transferButton.heightAnchor.constraint(equalToConstant: 56)
         ])
-    }
-
-    @objc
-    func chooseContact() {
-
-        delegate?.didPressChooseContactButton()
-    }
-
-    @objc
-    func transfer() {
-
-        delegate?.didPressTransferButton(with: amountTextField.text ?? "0")
     }
 
     required init?(coder: NSCoder) {
