@@ -40,6 +40,7 @@ final class TransfersView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Transfer", for: .normal)
         button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.gray, for: .disabled)
         button.backgroundColor = .systemBlue
         button.layer.cornerRadius = 14
         return button

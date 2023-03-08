@@ -31,7 +31,7 @@ final class TransfersViewController: UIViewController {
         bindObservables()
 
         // testing bibinding (transferView.amountTextField.text <-> transferAmountObservable)
-        transferAmountObservable.accept("123456789")
+//        transferAmountObservable.accept("123456789")
     }
 
     private func bindObservables() {
@@ -43,9 +43,10 @@ final class TransfersViewController: UIViewController {
             .disposed(by: disposeBag)
 
         // bibinding (transferView.amountTextField.text <-> transferAmountObservable)
-        transferAmountObservable
-            .bind(to: transferView.amountTextField.rx.text)
-            .disposed(by: disposeBag)
+//        transferAmountObservable
+//            .bind(to: transferView.amountTextField.rx.text)
+//            .disposed(by: disposeBag)
+
 
         // 4 subscribe para validar a ideia contida em 3
         // uncomment to debug!
@@ -59,6 +60,11 @@ final class TransfersViewController: UIViewController {
             self.transferView.amountTextField.textColor = amount > self.balance ? UIColor.red : UIColor.green
         }).disposed(by: disposeBag)
 
+        // 6 garantindo que o botão de transferencia não esteja habilitado
+        transferAmountObservable
+            .map { $0.count > 0 }
+            .bind(to: transferView.transferButton.rx.isEnabled)
+            .disposed(by: disposeBag)
 
         // 1 - Reagir ao clique em Choose contact: mostrar os contatos?
         transferView.chooseContactButton.rx
