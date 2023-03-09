@@ -13,12 +13,23 @@ protocol HomeViewDelegate: AnyObject {
     func didSelectActivity()
 }
 
+struct HomeViewState {
+    let homeHeaderViewState: HomeHeaderViewState?
+    let activityCellViewState: [ActivityCellViewState]
+}
+
 class HomeView: UIView {
 
     weak var delegate: HomeViewDelegate?
+    
+    var homeViewState: HomeViewState? {
+        didSet {
+            homeHeaderView.homeHeaderViewState = homeViewState?.homeHeaderViewState
+            activityListView.activities = homeViewState?.activityCellViewState ?? []
+        }
+    }
 
     let stackView: UIStackView = {
-
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -27,13 +38,11 @@ class HomeView: UIView {
     }()
 
     let homeHeaderView: HomeHeaderView = {
-
         let homeHeaderView = HomeHeaderView()
         return homeHeaderView
     }()
 
     lazy var activityListView: ActivityListView = {
-
         let activityListView = ActivityListView()
         activityListView.translatesAutoresizingMaskIntoConstraints = false
         activityListView.delegate = self
@@ -43,7 +52,6 @@ class HomeView: UIView {
 
     init() {
         super.init(frame: .zero)
-
         backgroundColor = .white
 
         stackView.addArrangedSubview(homeHeaderView)
@@ -51,13 +59,12 @@ class HomeView: UIView {
         stackView.setCustomSpacing(32, after: homeHeaderView)
         addSubview(stackView)
 
-        let estimatedHeight = CGFloat(activityListView.tableView.numberOfRows(inSection: 0))*ActivityListView.cellSize
+        let estimatedHeight = 5*ActivityListView.cellSize
 
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 16),
-            
             activityListView.heightAnchor.constraint(equalToConstant: estimatedHeight)
         ])
     }
