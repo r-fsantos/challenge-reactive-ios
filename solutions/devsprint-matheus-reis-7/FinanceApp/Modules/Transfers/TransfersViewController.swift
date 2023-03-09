@@ -20,6 +20,11 @@ final class TransfersViewController: UIViewController {
     // 3 - Bind de emissão do valor a ser transferido a um behaviorRelay
     private let transferAmountObservable = BehaviorRelay<String>(value: "")
 
+    // 7 Type casting para fins de validação
+    var mappedAmountObservable: Observable<Double> {
+        transferAmountObservable.map { Double($0) ?? 0.0 }
+    }
+
     // 5 saldo > valorASerTransferido ? success : erro (falta saldo)
     private let balance: Double = 150.0
 
@@ -55,14 +60,14 @@ final class TransfersViewController: UIViewController {
         //        }).disposed(by: disposeBag)
 
         // 5 saldo > valorASerTransferido ? success : erro (falta saldo)
-        transferAmountObservable.map { Double($0) ?? 0.0 }
-        .subscribe(onNext: { amount in
-            self.transferView.amountTextField.textColor = amount > self.balance ? UIColor.red : UIColor.green
-        }).disposed(by: disposeBag)
+        mappedAmountObservable
+            .subscribe(onNext: { amount in
+                self.transferView.amountTextField.textColor = amount > self.balance ? UIColor.red : UIColor.green
+            }).disposed(by: disposeBag)
 
         // 6 garantindo que o botão de transferencia não esteja habilitado
-        transferAmountObservable
-            .map { $0.count > 0 }
+        mappedAmountObservable
+            .map { $0 > 0 && $0 <= self.balance }
             .bind(to: transferView.transferButton.rx.isEnabled)
             .disposed(by: disposeBag)
 
@@ -75,6 +80,9 @@ final class TransfersViewController: UIViewController {
         // 2 - Reagir ao clique transfer button: mostrar view de transferencia
         transferView.transferButton.rx
             .tap.bind {
+                // TODO: Refactor to map Double -> String
+                // deve ser seguro uma vez que o botão só é habilitado para
+                // valores != Strings e > saldo/balance
                 let amount = self.transferAmountObservable.value
                 self.didPressTransferButton(withAmount: amount)
             }.disposed(by: disposeBag)
