@@ -25,9 +25,15 @@ final class TransfersViewController: UIViewController {
         transferAmountObservable.map { Double($0) ?? 0.0 }
     }
 
+    var isValidAmountObservable: Observable<Bool> {
+        Observable.combineLatest(transferAmountObservable, mappedAmountObservable)
+            .map { !$1.isZero && $1 <= self.balance }
+    }
+
     // 5 saldo > valorASerTransferido ? success : erro (falta saldo)
     private let balance: Double = 150.0
 
+    // MARK: - UIViewController Lifecycle
     override func loadView() {
         self.view = transferView
     }
@@ -36,7 +42,7 @@ final class TransfersViewController: UIViewController {
         bindObservables()
 
         // testing bibinding (transferView.amountTextField.text <-> transferAmountObservable)
-//        transferAmountObservable.accept("123456789")
+        // transferAmountObservable.accept("123456789")
     }
 
     private func bindObservables() {
@@ -48,9 +54,9 @@ final class TransfersViewController: UIViewController {
             .disposed(by: disposeBag)
 
         // bibinding (transferView.amountTextField.text <-> transferAmountObservable)
-//        transferAmountObservable
-//            .bind(to: transferView.amountTextField.rx.text)
-//            .disposed(by: disposeBag)
+        //transferAmountObservable
+        //    .bind(to: transferView.amountTextField.rx.text)
+        //    .disposed(by: disposeBag)
 
 
         // 4 subscribe para validar a ideia contida em 3
@@ -59,15 +65,13 @@ final class TransfersViewController: UIViewController {
         //            print("valor a ser transferido: \($0)")
         //        }).disposed(by: disposeBag)
 
-        // 5 saldo > valorASerTransferido ? success : erro (falta saldo)
-        mappedAmountObservable
-            .subscribe(onNext: { amount in
-                self.transferView.amountTextField.textColor = amount > self.balance ? UIColor.red : UIColor.green
+        isValidAmountObservable
+            .subscribe(onNext: { isValid in
+                self.transferView.amountTextField.textColor = isValid ? .green : .red
             }).disposed(by: disposeBag)
 
         // 6 garantindo que o botão de transferencia não esteja habilitado
-        mappedAmountObservable
-            .map { $0 > 0 && $0 <= self.balance }
+        isValidAmountObservable
             .bind(to: transferView.transferButton.rx.isEnabled)
             .disposed(by: disposeBag)
 
@@ -80,9 +84,10 @@ final class TransfersViewController: UIViewController {
         // 2 - Reagir ao clique transfer button: mostrar view de transferencia
         transferView.transferButton.rx
             .tap.bind {
-                // TODO: Refactor to map Double -> String
-                // deve ser seguro uma vez que o botão só é habilitado para
-                // valores != Strings e > saldo/balance
+                // TODO: Should I Refactor to map Double -> String?
+                // pensar se essa chamada é segura uma vez que o
+                // botão só é habilitado para
+                //      valores != Strings e > saldo/balance
                 let amount = self.transferAmountObservable.value
                 self.didPressTransferButton(withAmount: amount)
             }.disposed(by: disposeBag)
