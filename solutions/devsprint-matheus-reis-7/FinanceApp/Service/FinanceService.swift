@@ -7,9 +7,31 @@
 
 import Foundation
 import Combine
+import RxSwift
 
-class FinanceService {
+enum FinanceServiceEndpoints {
+    case activityDetails
 
+    var urlString: String {
+        switch self {
+        case .activityDetails:
+            return "https://raw.githubusercontent.com/devpass-tech/challenge-viewcode-finance/10ce6c2e9c88199ad8c4e721212099f55b26dfbb/api/activity_details_endpoint.json"
+        }
+    }
+}
+
+final class FinanceService {
+
+    private let urlSession: URLSession
+    private let jsonDecoder: JSONDecoder
+
+    init(urlSession: URLSession = URLSession.shared,
+         jsonDecoder: JSONDecoder = JSONDecoder()) {
+        self.urlSession = urlSession
+        self.jsonDecoder = jsonDecoder
+    }
+
+    // MARK: - fetchHomeData
     func fetchHomeData() -> AnyPublisher<HomeData?, Error> {
         let url = URL(string: "https://raw.githubusercontent.com/devpass-tech/challenge-finance-app/main/api/home_endpoint.json")!
         let decoder = JSONDecoder()
@@ -20,36 +42,7 @@ class FinanceService {
             .eraseToAnyPublisher()
     }
 
-    func fetchActivityDetails(_ completion: @escaping (ActivityDetails?) -> Void) {
-
-        let url = URL(string: "https://raw.githubusercontent.com/devpass-tech/challenge-finance-app/main/api/activity_details_endpoint.json")!
-
-        let dataTask = URLSession.shared.dataTask(with: url) { data, response, error in
-
-            guard error == nil else {
-                completion(nil)
-                return
-            }
-
-            guard let data = data else {
-                completion(nil)
-                return
-            }
-
-            do {
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                let activityDetails = try decoder.decode(ActivityDetails.self, from: data)
-                completion(activityDetails)
-            } catch {
-                print(error)
-                completion(nil)
-            }
-        }
-
-        dataTask.resume()
-    }
-
+    // MARK: - fetchContactList
     func fetchContactList(_ completion: @escaping ([Contact]?) -> Void) {
 
         let url = URL(string: "https://raw.githubusercontent.com/devpass-tech/challenge-finance-app/main/api/contact_list_endpoint.json")!
@@ -80,6 +73,7 @@ class FinanceService {
         dataTask.resume()
     }
 
+    // MARK: - transferAmount
     func transferAmount(_ completion: @escaping (TransferResult?) -> Void) {
 
         let url = URL(string: "https://raw.githubusercontent.com/devpass-tech/challenge-finance-app/main/api/transfer_successful_endpoint.json")!
@@ -120,4 +114,43 @@ class FinanceService {
             .eraseToAnyPublisher()
     }
 
+}
+
+// MARK: - fetchActivityDetails
+extension FinanceService {
+    func fetchActivityDetails() -> Single<ActivityDetails> {
+        return Single<ActivityDetails>.create { single in
+
+            let urlInString = FinanceServiceEndpoints.activityDetails.urlString
+            guard let url = URL(string: urlInString) else {
+                single(.failure(NetworkServiceError.invalidURL))
+                return Disposables.create()
+            }
+
+            let dataTask = self.urlSession.dataTask(with: url) { data, response, error in
+
+                if let error = error {
+                    single(.failure(error))
+                    return
+                }
+
+                guard let data = data else {
+                    single(.failure(NetworkServiceError.noData))
+                    return
+                }
+
+                do {
+                    self.jsonDecoder.keyDecodingStrategy = .convertFromSnakeCase
+                    let activityDetails = try self.jsonDecoder.decode(ActivityDetails.self, from: data)
+                    single(.success(activityDetails))
+                } catch {
+                    single(.failure(NetworkServiceError.decodeError))
+                }
+            }
+
+            dataTask.resume()
+
+            return Disposables.create { dataTask.cancel() }
+        }
+    }
 }
