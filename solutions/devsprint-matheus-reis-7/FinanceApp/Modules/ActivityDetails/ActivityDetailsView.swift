@@ -11,14 +11,18 @@ import UIKit
 protocol ActivityDetailsViewDelegate: AnyObject {
     func didPressReportButton()
 }
+protocol ActivityDetailsViewProtocol where Self: UIView {
+    var delegate: ActivityDetailsViewDelegate? { get set }
+    func show(viewModel: ActivityDetails)
+}
 
-final class ActivityDetailsView: UIView {
+final class ActivityDetailsView: UIView, ActivityDetailsViewProtocol {
 
     // MARK: - Delegate
     weak var delegate: ActivityDetailsViewDelegate?
 
     // MARK: - UIView properties
-    let stackView: UIStackView = {
+    private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -27,7 +31,7 @@ final class ActivityDetailsView: UIView {
         return stackView
     }()
 
-    let imageView: UIImageView = {
+    private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "bag.circle.fill")
         imageView.layer.cornerRadius = 50
@@ -35,38 +39,34 @@ final class ActivityDetailsView: UIView {
         return imageView
     }()
 
-    let activityNameLabel: UILabel = {
+    private let activityNameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Mall"
         label.textAlignment = .center
         label.font = UIFont.boldSystemFont(ofSize: 17)
         return label
     }()
 
-    let categoryLabel: UILabel = {
+    private let categoryLabel: UILabel = {
         let label = UILabel()
-        label.text = "Shopping"
         label.textAlignment = .center
         return label
     }()
 
-    let priceContainerView: UIView = {
+    private let priceContainerView: UIView = {
         let view = UIView()
         return view
     }()
 
-    let priceLabel: UILabel = {
+    private let priceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "$100"
         label.font = UIFont.boldSystemFont(ofSize: 34)
         return label
     }()
 
-    let timeLabel: UILabel = {
+    private let timeLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "8:57 AM"
         return label
     }()
 
@@ -92,6 +92,16 @@ final class ActivityDetailsView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Protocol conformance
+    // TODO: Create a ActivityDetailsViewModel just for `price: String`?
+    func show(viewModel: ActivityDetails) {
+        activityNameLabel.text = viewModel.name
+        categoryLabel.text = viewModel.category
+        // TODO: Method overloading? Unecessary computation? Float -> String
+        priceLabel.text = String(viewModel.price)
+        timeLabel.text = viewModel.time
+    }
+
     @objc
     func reportButtonPressed() {
 
@@ -100,6 +110,7 @@ final class ActivityDetailsView: UIView {
 
 }
 
+// TODO: Implement viewCodable procotol
 private extension ActivityDetailsView {
     private func setup() {
         backgroundColor = .white
