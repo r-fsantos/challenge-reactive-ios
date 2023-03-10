@@ -9,6 +9,20 @@ import Foundation
 import UIKit
 
 class UserProfileView: UIView {
+    
+    var userProfileData: UserProfile? {
+        didSet {
+            tableView.reloadData()
+            headerView.nameLabel.text = userProfileData?.name
+            headerView.agencyLabel.text = "Agency \(userProfileData?.account.agency ?? "")"
+            headerView.accountLabel.text = "Account \(userProfileData?.account.account ?? "")"
+            
+        }
+    }
+    
+    private lazy var headerView: UserProfileHeaderView = {
+        UserProfileHeaderView()
+    }()
 
     private lazy var tableView: UITableView = {
 
@@ -17,7 +31,6 @@ class UserProfileView: UIView {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
         tableView.dataSource = self
 
-        let headerView = UserProfileHeaderView()
         headerView.frame = CGRect(x: 0, y: 0, width: 0, height: 232)
         tableView.tableHeaderView = headerView
         return tableView
@@ -63,15 +76,15 @@ extension UserProfileView: UITableViewDataSource {
         case 0:
 
             cell.textLabel?.text = "Phone"
-            cell.detailTextLabel?.text = "+55 (11) 99999-9999"
+            cell.detailTextLabel?.text = userProfileData?.phone
         case 1:
 
             cell.textLabel?.text = "E-mail"
-            cell.detailTextLabel?.text = "user@devpass.com"
+            cell.detailTextLabel?.text = userProfileData?.email
         case 2:
 
             cell.textLabel?.text = "Address"
-            cell.detailTextLabel?.text = "Rua Bela Cintra, 495"
+            cell.detailTextLabel?.text = userProfileData?.address
         default:
             break
         }
