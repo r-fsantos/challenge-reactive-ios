@@ -9,27 +9,25 @@ import Foundation
 import UIKit
 
 protocol ActivityDetailsViewDelegate: AnyObject {
-
     func didPressReportButton()
 }
 
-class ActivityDetailsView: UIView {
+final class ActivityDetailsView: UIView {
 
+    // MARK: - Delegate
     weak var delegate: ActivityDetailsViewDelegate?
 
+    // MARK: - UIView properties
     let stackView: UIStackView = {
-
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = 8
         stackView.distribution = .fill
-        
         return stackView
     }()
 
     let imageView: UIImageView = {
-
         let imageView = UIImageView()
         imageView.image = UIImage(named: "bag.circle.fill")
         imageView.layer.cornerRadius = 50
@@ -38,7 +36,6 @@ class ActivityDetailsView: UIView {
     }()
 
     let activityNameLabel: UILabel = {
-
         let label = UILabel()
         label.text = "Mall"
         label.textAlignment = .center
@@ -47,7 +44,6 @@ class ActivityDetailsView: UIView {
     }()
 
     let categoryLabel: UILabel = {
-
         let label = UILabel()
         label.text = "Shopping"
         label.textAlignment = .center
@@ -55,13 +51,11 @@ class ActivityDetailsView: UIView {
     }()
 
     let priceContainerView: UIView = {
-
         let view = UIView()
         return view
     }()
 
     let priceLabel: UILabel = {
-
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "$100"
@@ -70,7 +64,6 @@ class ActivityDetailsView: UIView {
     }()
 
     let timeLabel: UILabel = {
-
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "8:57 AM"
@@ -78,7 +71,6 @@ class ActivityDetailsView: UIView {
     }()
 
     lazy var reportIssueButton: UIButton = {
-
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Report a issue", for: .normal)
@@ -89,10 +81,27 @@ class ActivityDetailsView: UIView {
         return button
     }()
 
-
+    // MARK: - Initializer
+    // TODO: Implement viewCodable procotol
     init() {
         super.init(frame: .zero)
+        setup()
+    }
 
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    @objc
+    func reportButtonPressed() {
+
+        delegate?.didPressReportButton()
+    }
+
+}
+
+private extension ActivityDetailsView {
+    private func setup() {
         backgroundColor = .white
 
         priceContainerView.addSubview(priceLabel)
@@ -124,15 +133,5 @@ class ActivityDetailsView: UIView {
             reportIssueButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16),
             reportIssueButton.heightAnchor.constraint(equalToConstant: 56)
         ])
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    @objc
-    func reportButtonPressed() {
-
-        delegate?.didPressReportButton()
     }
 }
