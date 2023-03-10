@@ -7,17 +7,27 @@
 
 import UIKit
 
-class ActivityDetailsViewController: UIViewController {
+final class ActivityDetailsViewController: UIViewController {
 
-    lazy var activityDetailsView: ActivityDetailsView = {
+    // MARK: - UIView properties
+    private let activityDetailsView: ActivityDetailsView
 
-        let activityDetailsView = ActivityDetailsView()
-        activityDetailsView.delegate = self
-        return activityDetailsView
-    }()
+    // MARK: - Initializers
+    // TODO: Abstract FinanceService as ServiceProtocol
+    init(activityDetailsView: ActivityDetailsView = ActivityDetailsView()) {
+        self.activityDetailsView = activityDetailsView
+        super.init(nibName: nil, bundle: nil)
+    }
 
+    required init?(coder: NSCoder) { nil }
+
+    // MARK: - UIViewController lifecycle methods
     override func loadView() {
         self.view = activityDetailsView
+    }
+
+    override func viewDidLoad() {
+        activityDetailsView.delegate = self
     }
 }
 
