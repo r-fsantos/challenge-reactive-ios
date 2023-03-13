@@ -110,34 +110,14 @@ class FinanceService {
         dataTask.resume()
     }
 
-    func fetchUserProfile(_ completion: @escaping (UserProfile?) -> Void) {
-
+    func fetchUserProfile() -> AnyPublisher<UserProfile?, Error> {
         let url = URL(string: "https://raw.githubusercontent.com/devpass-tech/challenge-finance-app/main/api/user_profile_endpoint.json")!
-
-        let dataTask = URLSession.shared.dataTask(with: url) { data, response, error in
-
-            guard error == nil else {
-                completion(nil)
-                return
-            }
-
-            guard let data = data else {
-                completion(nil)
-                return
-            }
-
-            do {
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                let userProfile = try decoder.decode(UserProfile.self, from: data)
-                completion(userProfile)
-            } catch {
-                print(error)
-                completion(nil)
-            }
-        }
-
-        dataTask.resume()
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .map { $0.data }
+            .decode(type: UserProfile?.self, decoder: decoder)
+            .eraseToAnyPublisher()
     }
 
 }
