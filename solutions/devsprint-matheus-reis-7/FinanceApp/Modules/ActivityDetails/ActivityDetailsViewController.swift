@@ -12,13 +12,17 @@ import RxSwift
 final class ActivityDetailsViewController: UIViewController {
 
     // MARK: - UIView properties
-    private let activityDetailsView: ActivityDetailsViewProtocol
+    private lazy var activityDetailsView: ActivityDetailsView = {
+        let activityDetailsView = ActivityDetailsView()
+        activityDetailsView.delegate = self
+        return activityDetailsView
+    }()
 
     // MARK: - DataSource / UseCase dependencies
     private let service: FinanceService
 
     // MARK: - Reactive Properties
-    private let disposeBag: DisposeBag
+    private let disposeBag = DisposeBag()
     private let activityDetailsObservable = BehaviorRelay<ActivityDetails>(
         value: .init(name: "",
                      price: 0,
@@ -27,13 +31,8 @@ final class ActivityDetailsViewController: UIViewController {
     )
 
     // MARK: - Initializers
-    // TODO: Abstract FinanceService as ServiceProtocol
-    init(activityDetailsView: ActivityDetailsViewProtocol = ActivityDetailsView(),
-         service: FinanceService = FinanceService(),
-         disposeBag: DisposeBag = DisposeBag()) {
-        self.activityDetailsView = activityDetailsView
+    init(service: FinanceService = FinanceService()) {
         self.service = service
-        self.disposeBag = disposeBag
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -45,35 +44,32 @@ final class ActivityDetailsViewController: UIViewController {
     }
 
     override func viewDidLoad() {
-        activityDetailsView.delegate = self
-        fetchDataView()
         bindObservables()
+        fetchDataView()
     }
 }
 
-// MARK: -
 private extension ActivityDetailsViewController {
 
-    private func fetchDataView() {
-        service.fetchActivityDetails().subscribe(onSuccess: { [weak self ] activityDetails in
+    func fetchDataView() {
+        service.fetchActivityDetails().subscribe(onSuccess: { [weak self] activityDetails in
             guard let self = self else { return }
             self.activityDetailsObservable.accept(activityDetails)
         }, onFailure: { failure in
-            // TODO: What should be the approach on errors?
             print("failure:", failure.localizedDescription)
         }).disposed(by: disposeBag)
     }
 
 }
 
-// MARK: - Observables binding
 private extension ActivityDetailsViewController {
 
-    private func bindObservables() {
+    func bindObservables() {
         activityDetailsObservable
             .asDriver()
-            .drive {
-                self.activityDetailsView.show(viewModel: $0)
+            .drive { [weak self] activityDetails in
+                guard let self = self else { return }
+                self.activityDetailsView.show(viewModel: activityDetails)
             }.disposed(by: disposeBag)
     }
 
@@ -82,10 +78,10 @@ private extension ActivityDetailsViewController {
 extension ActivityDetailsViewController: ActivityDetailsViewDelegate {
 
     func didPressReportButton() {
-
         let alertViewController = UIAlertController(title: "Report an issue", message: "The issue was reported", preferredStyle: .alert)
         let action = UIAlertAction(title: "Thanks", style: .default)
         alertViewController.addAction(action)
         self.present(alertViewController, animated: true)
     }
+
 }

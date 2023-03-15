@@ -11,12 +11,8 @@ import UIKit
 protocol ActivityDetailsViewDelegate: AnyObject {
     func didPressReportButton()
 }
-protocol ActivityDetailsViewProtocol where Self: UIView {
-    var delegate: ActivityDetailsViewDelegate? { get set }
-    func show(viewModel: ActivityDetails)
-}
 
-final class ActivityDetailsView: UIView, ActivityDetailsViewProtocol {
+final class ActivityDetailsView: UIView {
 
     // MARK: - Delegate
     weak var delegate: ActivityDetailsViewDelegate?
@@ -82,7 +78,6 @@ final class ActivityDetailsView: UIView, ActivityDetailsViewProtocol {
     }()
 
     // MARK: - Initializer
-    // TODO: Implement viewCodable procotol
     init() {
         super.init(frame: .zero)
         setup()
@@ -93,18 +88,15 @@ final class ActivityDetailsView: UIView, ActivityDetailsViewProtocol {
     }
 
     // MARK: - Protocol conformance
-    // TODO: Create a ActivityDetailsViewModel just for `price: String`?
     func show(viewModel: ActivityDetails) {
         activityNameLabel.text = viewModel.name
         categoryLabel.text = viewModel.category
-        // TODO: Method overloading? Unecessary computation? Float -> String
         priceLabel.text = String(viewModel.price)
         timeLabel.text = viewModel.time
     }
 
     @objc
     func reportButtonPressed() {
-
         delegate?.didPressReportButton()
     }
 
