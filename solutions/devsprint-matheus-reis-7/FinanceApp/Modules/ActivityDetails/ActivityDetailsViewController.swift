@@ -47,11 +47,8 @@ final class ActivityDetailsViewController: UIViewController {
         bindObservables()
         fetchDataView()
     }
-}
 
-private extension ActivityDetailsViewController {
-
-    func fetchDataView() {
+    private func fetchDataView() {
         service.fetchActivityDetails().subscribe(onSuccess: { [weak self] activityDetails in
             guard let self = self else { return }
             self.activityDetailsObservable.accept(activityDetails)
@@ -60,11 +57,7 @@ private extension ActivityDetailsViewController {
         }).disposed(by: disposeBag)
     }
 
-}
-
-private extension ActivityDetailsViewController {
-
-    func bindObservables() {
+    private func bindObservables() {
         activityDetailsObservable
             .asDriver()
             .drive { [weak self] activityDetails in
