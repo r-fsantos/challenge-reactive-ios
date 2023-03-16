@@ -9,27 +9,25 @@ import Foundation
 import UIKit
 
 protocol ActivityDetailsViewDelegate: AnyObject {
-
     func didPressReportButton()
 }
 
-class ActivityDetailsView: UIView {
+final class ActivityDetailsView: UIView {
 
+    // MARK: - Delegate
     weak var delegate: ActivityDetailsViewDelegate?
 
-    let stackView: UIStackView = {
-
+    // MARK: - UIView properties
+    private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = 8
         stackView.distribution = .fill
-        
         return stackView
     }()
 
-    let imageView: UIImageView = {
-
+    private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "bag.circle.fill")
         imageView.layer.cornerRadius = 50
@@ -37,48 +35,38 @@ class ActivityDetailsView: UIView {
         return imageView
     }()
 
-    let activityNameLabel: UILabel = {
-
+    private let activityNameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Mall"
         label.textAlignment = .center
         label.font = UIFont.boldSystemFont(ofSize: 17)
         return label
     }()
 
-    let categoryLabel: UILabel = {
-
+    private let categoryLabel: UILabel = {
         let label = UILabel()
-        label.text = "Shopping"
         label.textAlignment = .center
         return label
     }()
 
-    let priceContainerView: UIView = {
-
+    private let priceContainerView: UIView = {
         let view = UIView()
         return view
     }()
 
-    let priceLabel: UILabel = {
-
+    private let priceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "$100"
         label.font = UIFont.boldSystemFont(ofSize: 34)
         return label
     }()
 
-    let timeLabel: UILabel = {
-
+    private let timeLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "8:57 AM"
         return label
     }()
 
     lazy var reportIssueButton: UIButton = {
-
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Report a issue", for: .normal)
@@ -89,10 +77,34 @@ class ActivityDetailsView: UIView {
         return button
     }()
 
-
+    // MARK: - Initializer
     init() {
         super.init(frame: .zero)
+        setup()
+    }
 
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Protocol conformance
+    func show(viewModel: ActivityDetails) {
+        activityNameLabel.text = viewModel.name
+        categoryLabel.text = viewModel.category
+        priceLabel.text = String(viewModel.price)
+        timeLabel.text = viewModel.time
+    }
+
+    @objc
+    func reportButtonPressed() {
+        delegate?.didPressReportButton()
+    }
+
+}
+
+// TODO: Implement viewCodable procotol
+private extension ActivityDetailsView {
+    private func setup() {
         backgroundColor = .white
 
         priceContainerView.addSubview(priceLabel)
@@ -124,15 +136,5 @@ class ActivityDetailsView: UIView {
             reportIssueButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor, constant: -16),
             reportIssueButton.heightAnchor.constraint(equalToConstant: 56)
         ])
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    @objc
-    func reportButtonPressed() {
-
-        delegate?.didPressReportButton()
     }
 }
