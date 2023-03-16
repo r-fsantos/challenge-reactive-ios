@@ -116,7 +116,7 @@ final class FinanceService {
 
 }
 
-// MARK: - fetchActivityDetails
+// MARK: - fetchActivityDetails using RxSwift
 extension FinanceService {
     func fetchActivityDetails() -> Single<ActivityDetails> {
         return Single<ActivityDetails>.create { single in
@@ -127,7 +127,12 @@ extension FinanceService {
                 return Disposables.create()
             }
 
-            let dataTask = self.urlSession.dataTask(with: url) { data, response, error in
+            let dataTask = self.urlSession.dataTask(with: url) { [weak self] data, response, error in
+
+                guard let self = self else {
+                    single(.failure(NetworkServiceError.networkError))
+                    return
+                }
 
                 if let error = error {
                     single(.failure(error))
